@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useCallback } from "react";
 import { MaskStyle } from "./MaskStylePicker";
 import { MaskActionPanel } from "./MaskActionPanel";
 import { cn } from "@/lib/utils";
@@ -43,7 +43,6 @@ export function DocumentCanvas({
   const [isSelecting, setIsSelecting] = useState(false);
   const [selectedMaskId, setSelectedMaskId] = useState<string | null>(null);
   const [panelPosition, setPanelPosition] = useState({ x: 0, y: 0 });
-  const [showExpandedPicker, setShowExpandedPicker] = useState(false);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     if (!isAnonymizationOn) return;
@@ -140,10 +139,9 @@ export function DocumentCanvas({
 
   const getMaskStyleClass = (style: MaskStyle) => {
     switch (style) {
-      case 'light': return 'mask-pattern-light';
-      case 'dark': return 'mask-pattern-dark';
-      case 'white': return 'mask-solid-white';
-      case 'black': return 'mask-solid-black';
+      case 'gray': return 'bg-[#9CA3AF]';
+      case 'white': return 'bg-white';
+      case 'black': return 'bg-black';
     }
   };
 
@@ -262,14 +260,9 @@ export function DocumentCanvas({
                 onMasksChange(masks.map(m => 
                   m.id === selectedMaskId ? { ...m, style } : m
                 ));
-                // Enable expanded picker if black is selected
-                if (style === 'black') {
-                  setShowExpandedPicker(true);
-                }
                 onStyleChange(style);
               }}
               position={panelPosition}
-              showExpandedPicker={showExpandedPicker}
             />
           </div>
         )}

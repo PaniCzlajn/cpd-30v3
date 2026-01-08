@@ -7,7 +7,6 @@ interface MaskActionPanelProps {
   onDelete: () => void;
   onStyleChange: (style: MaskStyle) => void;
   position: { x: number; y: number };
-  showExpandedPicker: boolean;
 }
 
 export function MaskActionPanel({
@@ -15,7 +14,6 @@ export function MaskActionPanel({
   onDelete,
   onStyleChange,
   position,
-  showExpandedPicker,
 }: MaskActionPanelProps) {
   const [showStylePicker, setShowStylePicker] = useState(false);
 
@@ -23,17 +21,24 @@ export function MaskActionPanel({
     <div
       className="absolute z-50 flex flex-col items-start gap-1"
       style={{ left: position.x, top: position.y }}
+      onClick={(e) => e.stopPropagation()}
     >
       <div className="flex items-center bg-popover rounded-md shadow-lg border border-border overflow-hidden">
         <button
-          onClick={onDelete}
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete();
+          }}
           className="px-3 py-1.5 text-sm font-medium bg-muted text-muted-foreground hover:bg-muted/80 transition-colors"
         >
           Cofnij
         </button>
         <div className="w-px h-6 bg-border" />
         <button
-          onClick={() => setShowStylePicker(!showStylePicker)}
+          onClick={(e) => {
+            e.stopPropagation();
+            setShowStylePicker(!showStylePicker);
+          }}
           className="flex items-center gap-1 px-2 py-1.5 hover:bg-muted transition-colors"
         >
           <MaskStylePreview style={currentStyle} />
@@ -49,7 +54,6 @@ export function MaskActionPanel({
               onStyleChange(style);
               setShowStylePicker(false);
             }}
-            expanded={showExpandedPicker}
           />
         </div>
       )}
