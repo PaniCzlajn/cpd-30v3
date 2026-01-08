@@ -1,30 +1,28 @@
 import { cn } from "@/lib/utils";
 
-export type MaskStyle = 'light' | 'dark' | 'white' | 'black';
+export type MaskStyle = 'gray' | 'white' | 'black';
 
 const allStyles: { id: MaskStyle; className: string }[] = [
-  { id: 'white', className: 'mask-solid-white border border-border' },
-  { id: 'black', className: 'mask-solid-black' },
-  { id: 'light', className: 'mask-pattern-light' },
-  { id: 'dark', className: 'mask-pattern-dark' },
+  { id: 'gray', className: 'bg-[#9CA3AF]' },
+  { id: 'white', className: 'bg-white border border-border' },
+  { id: 'black', className: 'bg-black' },
 ];
 
 interface MaskStylePickerProps {
   selectedStyle: MaskStyle;
   onStyleChange: (style: MaskStyle) => void;
-  expanded?: boolean;
 }
 
-export function MaskStylePicker({ selectedStyle, onStyleChange, expanded = false }: MaskStylePickerProps) {
-  // Show only white and black by default, all 4 if expanded (black was selected)
-  const visibleStyles = expanded ? allStyles : allStyles.slice(0, 2);
-  
+export function MaskStylePicker({ selectedStyle, onStyleChange }: MaskStylePickerProps) {
   return (
     <div className="flex gap-1 p-1 bg-popover rounded-md shadow-lg border border-border">
-      {visibleStyles.map((style) => (
+      {allStyles.map((style) => (
         <button
           key={style.id}
-          onClick={() => onStyleChange(style.id)}
+          onClick={(e) => {
+            e.stopPropagation();
+            onStyleChange(style.id);
+          }}
           className={cn(
             "w-6 h-6 rounded-sm transition-all",
             style.className,
@@ -37,8 +35,8 @@ export function MaskStylePicker({ selectedStyle, onStyleChange, expanded = false
 }
 
 export function MaskStylePreview({ style }: { style: MaskStyle }) {
-  const styleClass = allStyles.find(s => s.id === style)?.className || 'mask-pattern-light';
+  const styleClass = allStyles.find(s => s.id === style)?.className || 'bg-[#9CA3AF]';
   return (
-    <div className={cn("w-5 h-5 rounded-sm", styleClass, style === 'white' && "border border-border")} />
+    <div className={cn("w-5 h-5 rounded-sm", styleClass)} />
   );
 }

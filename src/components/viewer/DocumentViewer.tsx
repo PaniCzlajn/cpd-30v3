@@ -31,7 +31,7 @@ export function DocumentViewer() {
   const [rotation, setRotation] = useState(0);
   const [currentPage] = useState(1);
   const [totalPages] = useState(4);
-  const [currentStyle, setCurrentStyle] = useState<MaskStyle>('light');
+  const [currentStyle, setCurrentStyle] = useState<MaskStyle>('gray');
   const [masks, setMasks] = useState<Mask[]>([]);
   const [savedMasks, setSavedMasks] = useState<Mask[]>([]);
 
@@ -58,7 +58,7 @@ export function DocumentViewer() {
   const handleToggleAnonymization = useCallback(() => {
     setIsAnonymizationOn(prev => !prev);
     if (!isAnonymizationOn) {
-      setCurrentStyle('light');
+      setCurrentStyle('gray');
     }
   }, [isAnonymizationOn]);
 
