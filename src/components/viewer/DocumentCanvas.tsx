@@ -42,8 +42,8 @@ export function DocumentCanvas({
   const [selection, setSelection] = useState<Selection | null>(null);
   const [isSelecting, setIsSelecting] = useState(false);
   const [selectedMaskId, setSelectedMaskId] = useState<string | null>(null);
-  const [showCreatePanel, setShowCreatePanel] = useState(false);
   const [panelPosition, setPanelPosition] = useState({ x: 0, y: 0 });
+  const [showExpandedPicker, setShowExpandedPicker] = useState(false);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     if (!isAnonymizationOn) return;
@@ -62,7 +62,6 @@ export function DocumentCanvas({
 
     if (clickedMask) {
       setSelectedMaskId(clickedMask.id);
-      setShowCreatePanel(false);
       setPanelPosition({
         x: (clickedMask.x + clickedMask.width) * (zoom / 100) + 10,
         y: clickedMask.y * (zoom / 100)
@@ -71,7 +70,6 @@ export function DocumentCanvas({
     }
 
     setSelectedMaskId(null);
-    setShowCreatePanel(false);
     setIsSelecting(true);
     setSelection({ startX: x, startY: y, endX: x, endY: y });
   }, [isAnonymizationOn, masks, zoom]);
@@ -100,37 +98,21 @@ export function DocumentCanvas({
       const x = Math.min(selection.startX, selection.endX);
       const y = Math.min(selection.startY, selection.endY);
       
-      setShowCreatePanel(true);
-      setPanelPosition({
-        x: (x + width) * (zoom / 100) + 10,
-        y: y * (zoom / 100)
-      });
-    } else {
-      setSelection(null);
+      // Immediately create mask with current style
+      const newMask: Mask = {
+        id: `mask-${Date.now()}`,
+        x,
+        y,
+        width,
+        height,
+        style: currentStyle,
+      };
+
+      onMasksChange([...masks, newMask]);
     }
-  }, [isSelecting, selection, zoom]);
-
-  const handleCreateMask = useCallback(() => {
-    if (!selection) return;
-
-    const x = Math.min(selection.startX, selection.endX);
-    const y = Math.min(selection.startY, selection.endY);
-    const width = Math.abs(selection.endX - selection.startX);
-    const height = Math.abs(selection.endY - selection.startY);
-
-    const newMask: Mask = {
-      id: `mask-${Date.now()}`,
-      x,
-      y,
-      width,
-      height,
-      style: currentStyle,
-    };
-
-    onMasksChange([...masks, newMask]);
+    
     setSelection(null);
-    setShowCreatePanel(false);
-  }, [selection, currentStyle, masks, onMasksChange]);
+  }, [isSelecting, selection, currentStyle, masks, onMasksChange]);
 
   const handleDeleteMask = useCallback(() => {
     if (!selectedMaskId) return;
@@ -142,7 +124,6 @@ export function DocumentCanvas({
     const target = e.target as HTMLElement;
     if (!target.closest('.mask-panel') && !target.closest('.mask-box')) {
       setSelectedMaskId(null);
-      setShowCreatePanel(false);
       setSelection(null);
     }
   }, []);
@@ -238,7 +219,7 @@ export function DocumentCanvas({
         </div>
 
         {/* Selection rectangle */}
-        {selection && !showCreatePanel && (
+        {selection && (
           <div
             className="absolute border-2 border-selection-border bg-selection-fill/20 pointer-events-none"
             style={getSelectionRect() || {}}
@@ -271,40 +252,24 @@ export function DocumentCanvas({
           />
         ))}
 
-        {/* Active selection with panel */}
-        {selection && showCreatePanel && (
-          <div
-            className="absolute border-2 border-selection-border bg-selection-fill/20"
-            style={getSelectionRect() || {}}
-          />
-        )}
-
-        {/* Create mask panel */}
-        {showCreatePanel && selection && (
-          <div className="mask-panel">
-            <MaskActionPanel
-              mode="create"
-              currentStyle={currentStyle}
-              onAction={handleCreateMask}
-              onStyleChange={onStyleChange}
-              position={panelPosition}
-            />
-          </div>
-        )}
-
         {/* Edit mask panel */}
         {selectedMaskId && selectedMask && (
           <div className="mask-panel">
             <MaskActionPanel
-              mode="edit"
               currentStyle={selectedMask.style}
-              onAction={handleDeleteMask}
+              onDelete={handleDeleteMask}
               onStyleChange={(style) => {
                 onMasksChange(masks.map(m => 
                   m.id === selectedMaskId ? { ...m, style } : m
                 ));
+                // Enable expanded picker if black is selected
+                if (style === 'black') {
+                  setShowExpandedPicker(true);
+                }
+                onStyleChange(style);
               }}
               position={panelPosition}
+              showExpandedPicker={showExpandedPicker}
             />
           </div>
         )}

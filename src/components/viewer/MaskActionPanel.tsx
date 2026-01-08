@@ -1,22 +1,21 @@
 import { ChevronRight } from "lucide-react";
 import { useState } from "react";
 import { MaskStyle, MaskStylePicker, MaskStylePreview } from "./MaskStylePicker";
-import { cn } from "@/lib/utils";
 
 interface MaskActionPanelProps {
-  mode: 'create' | 'edit';
   currentStyle: MaskStyle;
-  onAction: () => void;
+  onDelete: () => void;
   onStyleChange: (style: MaskStyle) => void;
   position: { x: number; y: number };
+  showExpandedPicker: boolean;
 }
 
 export function MaskActionPanel({
-  mode,
   currentStyle,
-  onAction,
+  onDelete,
   onStyleChange,
   position,
+  showExpandedPicker,
 }: MaskActionPanelProps) {
   const [showStylePicker, setShowStylePicker] = useState(false);
 
@@ -27,25 +26,17 @@ export function MaskActionPanel({
     >
       <div className="flex items-center bg-popover rounded-md shadow-lg border border-border overflow-hidden">
         <button
-          onClick={onAction}
-          className={cn(
-            "px-3 py-1.5 text-sm font-medium transition-colors",
-            mode === 'create' 
-              ? "bg-primary text-primary-foreground hover:bg-primary/90" 
-              : "bg-popover text-foreground hover:bg-muted"
-          )}
+          onClick={onDelete}
+          className="px-3 py-1.5 text-sm font-medium bg-muted text-muted-foreground hover:bg-muted/80 transition-colors"
         >
-          {mode === 'create' ? 'Zakryj dane' : 'Cofnij'}
+          Cofnij
         </button>
-        <div className="w-px h-6 bg-border" />
-        <div className="px-2 py-1.5">
-          <MaskStylePreview style={currentStyle} />
-        </div>
         <div className="w-px h-6 bg-border" />
         <button
           onClick={() => setShowStylePicker(!showStylePicker)}
-          className="px-2 py-1.5 hover:bg-muted transition-colors"
+          className="flex items-center gap-1 px-2 py-1.5 hover:bg-muted transition-colors"
         >
+          <MaskStylePreview style={currentStyle} />
           <ChevronRight className="w-4 h-4 text-muted-foreground" />
         </button>
       </div>
@@ -58,6 +49,7 @@ export function MaskActionPanel({
               onStyleChange(style);
               setShowStylePicker(false);
             }}
+            expanded={showExpandedPicker}
           />
         </div>
       )}

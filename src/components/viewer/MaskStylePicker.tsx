@@ -2,22 +2,26 @@ import { cn } from "@/lib/utils";
 
 export type MaskStyle = 'light' | 'dark' | 'white' | 'black';
 
+const allStyles: { id: MaskStyle; className: string }[] = [
+  { id: 'white', className: 'mask-solid-white border border-border' },
+  { id: 'black', className: 'mask-solid-black' },
+  { id: 'light', className: 'mask-pattern-light' },
+  { id: 'dark', className: 'mask-pattern-dark' },
+];
+
 interface MaskStylePickerProps {
   selectedStyle: MaskStyle;
   onStyleChange: (style: MaskStyle) => void;
+  expanded?: boolean;
 }
 
-const styles: { id: MaskStyle; className: string }[] = [
-  { id: 'light', className: 'mask-pattern-light' },
-  { id: 'dark', className: 'mask-pattern-dark' },
-  { id: 'white', className: 'mask-solid-white border border-border' },
-  { id: 'black', className: 'mask-solid-black' },
-];
-
-export function MaskStylePicker({ selectedStyle, onStyleChange }: MaskStylePickerProps) {
+export function MaskStylePicker({ selectedStyle, onStyleChange, expanded = false }: MaskStylePickerProps) {
+  // Show only white and black by default, all 4 if expanded (black was selected)
+  const visibleStyles = expanded ? allStyles : allStyles.slice(0, 2);
+  
   return (
     <div className="flex gap-1 p-1 bg-popover rounded-md shadow-lg border border-border">
-      {styles.map((style) => (
+      {visibleStyles.map((style) => (
         <button
           key={style.id}
           onClick={() => onStyleChange(style.id)}
@@ -33,7 +37,7 @@ export function MaskStylePicker({ selectedStyle, onStyleChange }: MaskStylePicke
 }
 
 export function MaskStylePreview({ style }: { style: MaskStyle }) {
-  const styleClass = styles.find(s => s.id === style)?.className || 'mask-pattern-light';
+  const styleClass = allStyles.find(s => s.id === style)?.className || 'mask-pattern-light';
   return (
     <div className={cn("w-5 h-5 rounded-sm", styleClass, style === 'white' && "border border-border")} />
   );
